@@ -118,6 +118,4 @@ final class ParcelURIProcessor implements UrlsProvider.URIProcessor {
         }
     }
 
-    record ParcelInfo(String date, String department) {
-    }
 }

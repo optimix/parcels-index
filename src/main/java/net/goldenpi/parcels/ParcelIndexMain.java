@@ -12,6 +12,19 @@ public class ParcelIndexMain {
     private static final Logger LOGGER = LoggerFactory.getLogger(ParcelIndexMain.class);
 
     public static void main(String[] args) {
+        if (args.length == 2) {
+            String parcelsToFindFile = args[0];
+            String parcelsIndexFile = args[1];
+            System.out.printf("Looking for parcels to find from " + parcelsToFindFile + " using %s...\n", parcelsIndexFile);
+            ParcelsFinder.findParcels(parcelsToFindFile, parcelsIndexFile);
+        } else if (args.length == 0) {
+            buildParcelsIndex();
+        } else {
+            System.err.println("Invalid number of arguments: " + args.length);
+        }
+    }
+
+    private static void buildParcelsIndex() {
         try (HttpClient httpClient = HttpClient.newHttpClient()) {
             downloadAndBuildIndex(httpClient);
         } catch (IOException | URISyntaxException | InterruptedException e) {
