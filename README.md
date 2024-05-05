@@ -47,6 +47,11 @@ Prepare a file with parce IDs to look for - for example file `missing_parcel_ids
 ...
 ```
 
+If you have used [dvf](https://github.com/optimix/dvf), you can do this to find parcels with missing latitude and longitude:
+```bash
+grep -E ',,$' dist/2023/full.csv | awk -F, '{ print $16 }' > missing_parcel_ids_2023.txt
+```
+
 Split the `parcels-index.csv` in smaller files:
 ```text
 split -l 20000000 parcels-index.csv parcels-index-part-
