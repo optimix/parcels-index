@@ -30,9 +30,24 @@ final class ParcelURIProcessor implements UrlsProvider.URIProcessor {
     private final Map<ParcelInfo, ParcelInfo> parcelInfoCacheHoldingReferencesToSaveMemory = new HashMap<>();
 
     private final Map<String, ParcelInfo> parcelInfoByParcelId = new HashMap<>();
+    private final Map<String, String> parcelIdsToIgnoreByParcelIds = new HashMap<>();
 
-    ParcelURIProcessor(HttpClient httpClient) throws IOException {
+    ParcelURIProcessor(HttpClient httpClient, boolean updateParcels) throws IOException {
         this.httpClient = httpClient;
+
+        if (updateParcels) {
+            AtomicInteger counter = new AtomicInteger(1);
+            Tools.readFile(PARCELS_OUTPUT_FILE, line -> {
+                String parcelId = line.split(",")[0];
+                parcelIdsToIgnoreByParcelIds.put(parcelId, null);
+                counter.getAndIncrement();
+                if (counter.get() % 1000000 == 0) {
+                    System.out.println(" read " + counter.get() + " parcels");
+                }
+            });
+            return;
+        }
+
         Files.writeString(Paths.get(PARCELS_OUTPUT_FILE), "");
     }
 
@@ -46,12 +61,20 @@ final class ParcelURIProcessor implements UrlsProvider.URIProcessor {
             return;
         }
 
+        System.out.printf("Parsing response for %s...\n", uri);
+
         ParcelResponseFeatures parcelResponseFeatures = objectMapper.readValue(parcelJson, new TypeReference<>() {
         });
 
         AtomicInteger countParcels = new AtomicInteger(0);
 
+        System.out.printf("Iterating on parcels for %s...\n", uri);
+
         parcelResponseFeatures.iterateOnParcelIds(parcelId -> {
+            if (parcelIdsToIgnoreByParcelIds.containsKey(parcelId)) {
+                return;
+            }
+
             if (parcelInfoByParcelId.containsKey(parcelId)) {
                 return;
             }

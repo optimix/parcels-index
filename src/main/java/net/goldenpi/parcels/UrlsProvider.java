@@ -28,20 +28,29 @@ final class UrlsProvider {
         void endDepartment(String department) throws IOException;
     }
 
-    public static void processURIs(URIProcessor uriProcessor)
+    public static void processURIs(URIProcessor uriProcessor, Optional<String> optionalDateToUpdate)
             throws IOException, URISyntaxException, InterruptedException {
         final List<String> departments = getDepartments();
 
         final Map<String, List<String>> datesByBaseUrl = new HashMap<>();
 
+        List<String> allUrls = BASE_URLS;
+        if (optionalDateToUpdate.isPresent()) {
+            allUrls = Collections.singletonList(AFTER_2021_BASE_URL);
+        }
+
         for (String department : departments) {
             HashMap<String, String> values = new HashMap<>();
             values.put("department", department);
 
-            for (String baseUrl : BASE_URLS.reversed()) {
+            for (String baseUrl : allUrls.reversed()) {
                 if (!datesByBaseUrl.containsKey(baseUrl)) {
-                    List<String> dates = getDates(baseUrl);
-                    datesByBaseUrl.put(baseUrl, dates);
+                    if (optionalDateToUpdate.isPresent()) {
+                        datesByBaseUrl.put(baseUrl, Collections.singletonList(optionalDateToUpdate.get()));
+                    } else {
+                        List<String> dates = getDates(baseUrl);
+                        datesByBaseUrl.put(baseUrl, dates);
+                    }
                 }
 
                 List<String> dates = datesByBaseUrl.get(baseUrl);

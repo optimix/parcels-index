@@ -29,7 +29,9 @@ Install OpenJDK 21 and maven.
 mvn clean install
 ```
 
-# Run the app to generate `parcels-index.csv`
+# Usage
+
+## Run the app to generate `parcels-index.csv`
 
 ```sh
 java -Xmx7G -jar target/parcels-index-0.1.jar
@@ -37,7 +39,7 @@ java -Xmx7G -jar target/parcels-index-0.1.jar
 
 At the end, `parcels-index.csv` will be created.
 
-# Find parcel IDs in `parcels-index.csv`
+## Find parcel IDs in `parcels-index.csv`
 
 Prepare a file with parce IDs to look for - for example file `missing_parcel_ids_2023.txt`:
 ```text
@@ -78,3 +80,13 @@ done
 ```
 
 At the end, `parcels-matches.csv` will be created.
+
+## Update an existing `parcels-index.csv`
+
+If you already have a `parcels-index.csv`, you can update it with `2024-04-01` new data like this:
+```sh
+java -Xmx13G -jar target/parcels-index-0.1.jar update 2024-04-01
+```
+You need at least 16GB of memory if having all parcels from 2017.
+8GB of memory + 12GB of swap will also work.
+

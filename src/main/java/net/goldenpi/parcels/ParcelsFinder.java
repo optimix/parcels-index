@@ -3,8 +3,6 @@ package net.goldenpi.parcels;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,8 +13,6 @@ import java.util.Map;
 final class ParcelsFinder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ParcelsFinder.class);
-
-    private static final int READ_BUFFER_SIZE = 8192 * 10 * 10;
 
     interface LineProcessor {
         void processLine(String line) throws IOException;
@@ -34,7 +30,7 @@ final class ParcelsFinder {
     private static void findParcelIds(String parcelsToFindFile, ParcelIdsHolder parcelIdsHolder) throws IOException {
         System.out.println("Finding parcels...");
 
-        readFile(parcelsToFindFile, parcelId -> {
+        Tools.readFile(parcelsToFindFile, parcelId -> {
             ParcelInfo parcelInfo = parcelIdsHolder.getParcel(parcelId);
             if (parcelInfo == null) {
                 return;
@@ -50,7 +46,7 @@ final class ParcelsFinder {
     private static ParcelIdsHolder readParcelIds(String parcelsIndexFile) throws IOException {
         ParcelIdsHolder parcelIdsHolder = new ParcelIdsHolder();
 
-        readFile(parcelsIndexFile, line -> {
+        Tools.readFile(parcelsIndexFile, line -> {
             String[] cells = line.split(",");
             if (cells.length != 3) {
                 return;
@@ -61,15 +57,6 @@ final class ParcelsFinder {
         System.out.println("Done reading parcels in memory");
 
         return parcelIdsHolder;
-    }
-
-    private static void readFile(String file, LineProcessor lineProcessor) throws IOException {
-        String line;
-        try (BufferedReader br = new BufferedReader(new FileReader(file), READ_BUFFER_SIZE)) {
-            while ((line = br.readLine()) != null) {
-                lineProcessor.processLine(line);
-            }
-        }
     }
 
     static final class ParcelIdsHolder {
